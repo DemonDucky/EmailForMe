@@ -1,8 +1,12 @@
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');  // Add this line
 
 const app = express();
 const port = 3000;
+
+// Enable CORS for all routes
+app.use(cors());  // Add this line
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -28,12 +32,11 @@ async function checkEmail(email) {
         "x-requested-with": "XMLHttpRequest"
       },
       data: data,
-      withCredentials: true, // This is equivalent to credentials: 'include'
-      maxRedirects: 0, // To handle referrerPolicy
+      withCredentials: true,
+      maxRedirects: 0,
     });
 
     const html = response.data;
-
     if (html.includes('Valid')) {
       return { status: 'valid', message: 'Email is valid' };
     } else if (html.includes('Invalid')) {
@@ -49,11 +52,9 @@ async function checkEmail(email) {
 
 app.post('/check-email', async (req, res) => {
   const { email } = req.body;
-
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
   }
-
   try {
     const result = await checkEmail(email);
     res.json(result);
